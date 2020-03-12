@@ -173,6 +173,7 @@ class MetricWrapperBase(object):
                     labelnames=self._labelnames,
                     unit=self._unit,
                     labelvalues=labelvalues,
+                    storage_provider=self._storage_provider,
                     **self._kwargs
                 )
             return self._metrics[labelvalues]
@@ -549,7 +550,8 @@ class Histogram(MetricWrapperBase):
                 self._name,
                 self._name + '_bucket',
                 bucket_labelnames,
-                self._labelvalues + (floatToGoString(b),))
+                self._labelvalues + (floatToGoString(b),),
+                storage_provider=self._storage_provider)
             )
 
     def observe(self, amount):
