@@ -96,6 +96,7 @@ class MetricWrapperBase(object):
                  unit='',
                  registry=REGISTRY,
                  labelvalues=None,
+                 storage_provider=None,
                  ):
         self._name = _build_full_name(self._type, name, namespace, subsystem, unit)
         self._labelnames = _validate_labelnames(self, labelnames)
@@ -103,6 +104,7 @@ class MetricWrapperBase(object):
         self._kwargs = {}
         self._documentation = documentation
         self._unit = unit
+        self._storage_provider = storage_provider
 
         if not METRIC_NAME_RE.match(self._name):
             raise ValueError('Invalid metric name: ' + self._name)
@@ -248,7 +250,7 @@ class Counter(MetricWrapperBase):
 
     def _metric_init(self):
         self._value = values.ValueClass(self._type, self._name, self._name + '_total', self._labelnames,
-                                        self._labelvalues)
+                                        self._labelvalues, storage_provider=self._storage_provider)
         self._created = time.time()
 
     def inc(self, amount=1):
@@ -324,6 +326,7 @@ class Gauge(MetricWrapperBase):
                  registry=REGISTRY,
                  labelvalues=None,
                  multiprocess_mode='all',
+                 storage_provider=None,
                  ):
         self._multiprocess_mode = multiprocess_mode
         if multiprocess_mode not in self._MULTIPROC_MODES:
@@ -337,13 +340,14 @@ class Gauge(MetricWrapperBase):
             unit=unit,
             registry=registry,
             labelvalues=labelvalues,
+            storage_provider=storage_provider
         )
         self._kwargs['multiprocess_mode'] = self._multiprocess_mode
 
     def _metric_init(self):
         self._value = values.ValueClass(
             self._type, self._name, self._name, self._labelnames, self._labelvalues,
-            multiprocess_mode=self._multiprocess_mode
+            multiprocess_mode=self._multiprocess_mode, storage_provider=self._storage_provider
         )
 
     def inc(self, amount=1):
@@ -431,8 +435,9 @@ class Summary(MetricWrapperBase):
 
     def _metric_init(self):
         self._count = values.ValueClass(self._type, self._name, self._name + '_count', self._labelnames,
-                                        self._labelvalues)
-        self._sum = values.ValueClass(self._type, self._name, self._name + '_sum', self._labelnames, self._labelvalues)
+                                        self._labelvalues, storage_provider=self._storage_provider)
+        self._sum = values.ValueClass(self._type, self._name, self._name + '_sum', self._labelnames, self._labelvalues,
+                                      storage_provider=self._storage_provider)
         self._created = time.time()
 
     def observe(self, amount):
@@ -504,6 +509,7 @@ class Histogram(MetricWrapperBase):
                  registry=REGISTRY,
                  labelvalues=None,
                  buckets=DEFAULT_BUCKETS,
+                 storage_provider=None,
                  ):
         self._prepare_buckets(buckets)
         super(Histogram, self).__init__(
@@ -515,6 +521,7 @@ class Histogram(MetricWrapperBase):
             unit=unit,
             registry=registry,
             labelvalues=labelvalues,
+            storage_provider=storage_provider,
         )
         self._kwargs['buckets'] = buckets
 
@@ -534,7 +541,8 @@ class Histogram(MetricWrapperBase):
         self._buckets = []
         self._created = time.time()
         bucket_labelnames = self._labelnames + ('le',)
-        self._sum = values.ValueClass(self._type, self._name, self._name + '_sum', self._labelnames, self._labelvalues)
+        self._sum = values.ValueClass(self._type, self._name, self._name + '_sum', self._labelnames, self._labelvalues,
+                                      storage_provider=self._storage_provider)
         for b in self._upper_bounds:
             self._buckets.append(values.ValueClass(
                 self._type,
