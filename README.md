@@ -1,6 +1,7 @@
 # Prometheus Python Client
 
-The official Python 2 and 3 client for [Prometheus](http://prometheus.io).
+Fork of an official client who can use Redis as a repository. It may be useful if you need to collect metrics 
+from different application instances that do not have a common parent process.
 
 ## Three Step Demo
 
