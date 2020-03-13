@@ -10,7 +10,7 @@ else: # Assuming we don't run setup in order to publish under python 2.6
 
 
 setup(
-    name="lb_prometheus_client",
+    name="prometheus_client",
     version="0.7.1.1",
     author="Brian Brazil",
     author_email="brian.brazil@robustperception.io",
