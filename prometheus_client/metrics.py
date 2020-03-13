@@ -30,7 +30,9 @@ def _build_full_name(metric_type, name, namespace, subsystem, unit):
     if unit and not full_name.endswith("_" + unit):
         full_name += "_" + unit
     if unit and metric_type in ('info', 'stateset'):
-        raise ValueError('Metric name is of a type that cannot have a unit: ' + full_name)
+        raise ValueError(
+            'Metric name is of a type that cannot have a unit: ' + full_name
+        )
     if metric_type == 'counter' and full_name.endswith('_total'):
         full_name = full_name[:-6]  # Munge to OpenMetrics.
     return full_name
@@ -348,7 +350,8 @@ class Gauge(MetricWrapperBase):
     def _metric_init(self):
         self._value = values.ValueClass(
             self._type, self._name, self._name, self._labelnames, self._labelvalues,
-            multiprocess_mode=self._multiprocess_mode, storage_provider=self._storage_provider
+            multiprocess_mode=self._multiprocess_mode,
+            storage_provider=self._storage_provider
         )
 
     def inc(self, amount=1):
@@ -435,9 +438,13 @@ class Summary(MetricWrapperBase):
     _reserved_labelnames = ['quantile']
 
     def _metric_init(self):
-        self._count = values.ValueClass(self._type, self._name, self._name + '_count', self._labelnames,
-                                        self._labelvalues, storage_provider=self._storage_provider)
-        self._sum = values.ValueClass(self._type, self._name, self._name + '_sum', self._labelnames, self._labelvalues,
+        self._count = values.ValueClass(self._type, self._name,
+                                        self._name + '_count', self._labelnames,
+                                        self._labelvalues,
+                                        storage_provider=self._storage_provider)
+        self._sum = values.ValueClass(self._type, self._name,
+                                      self._name + '_sum', self._labelnames,
+                                      self._labelvalues,
                                       storage_provider=self._storage_provider)
         self._created = time.time()
 
@@ -542,7 +549,9 @@ class Histogram(MetricWrapperBase):
         self._buckets = []
         self._created = time.time()
         bucket_labelnames = self._labelnames + ('le',)
-        self._sum = values.ValueClass(self._type, self._name, self._name + '_sum', self._labelnames, self._labelvalues,
+        self._sum = values.ValueClass(self._type, self._name,
+                                      self._name + '_sum', self._labelnames,
+                                      self._labelvalues,
                                       storage_provider=self._storage_provider)
         for b in self._upper_bounds:
             self._buckets.append(values.ValueClass(

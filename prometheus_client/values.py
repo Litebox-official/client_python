@@ -12,9 +12,12 @@ class MutexValue(object):
 
     _multiprocess = False
 
-    def __init__(self, typ, metric_name, name, labelnames, labelvalues, storage_provider=None, **kwargs):
+    def __init__(self, typ, metric_name, name, labelnames, labelvalues,
+                 storage_provider=None, **kwargs):
         _storage_provider = storage_provider or ValueProvider
-        self._storage_provider = _storage_provider(typ, metric_name, name, labelnames, labelvalues, **kwargs)
+        self._storage_provider = _storage_provider(typ, metric_name, name,
+                                                   labelnames, labelvalues,
+                                                   **kwargs)
 
     def inc(self, amount):
         self._storage_provider.inc(amount)
