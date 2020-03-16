@@ -51,13 +51,15 @@ class RedisProvider(Value):
         self._name = self.get_name(typ, metric_name, name, labelnames,
                                    labelvalues, **kwargs)
         self._redis_app = self.get_redis_app()
+        self._lock = self._redis_app.lock(self._name + '_lock')
 
     def inc(self, amount):
         self._redis_app.incrbyfloat(self._name, amount)
 
     def set(self, value):
-        with self._redis_app.lock(self._name):
-            self._redis_app.set(self._name, value)
+        self._lock.acquire(blocking=True)
+        self._redis_app.set(self._name, value)
+        self._lock.release()
 
     def get(self):
         return float(self._redis_app.get(self._name) or 0)
