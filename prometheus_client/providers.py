@@ -57,9 +57,8 @@ class RedisProvider(Value):
         self._redis_app.incrbyfloat(self._name, amount)
 
     def set(self, value):
-        self._lock.acquire(blocking=True)
-        self._redis_app.set(self._name, value)
-        self._lock.release()
+        with self._lock:
+            self._redis_app.set(self._name, value)
 
     def get(self):
         return float(self._redis_app.get(self._name) or 0)
