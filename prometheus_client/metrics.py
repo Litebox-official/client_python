@@ -652,6 +652,7 @@ class Enum(MetricWrapperBase):
                  registry=REGISTRY,
                  labelvalues=None,
                  states=None,
+                 storage_provider=None
                  ):
         super(Enum, self).__init__(
             name=name,
@@ -662,6 +663,7 @@ class Enum(MetricWrapperBase):
             unit=unit,
             registry=registry,
             labelvalues=labelvalues,
+            storage_provider=storage_provider
         )
         if name in labelnames:
             raise ValueError('Overlapping labels for Enum metric: %s' % (name,))

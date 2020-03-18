@@ -46,6 +46,9 @@ class ValueProvider(Value):
 class RedisProvider(Value):
     """Metric storage provider in Redis."""
 
+    BLOCKING = None
+    BLOCKING_TIMEOUT = None
+
     def __init__(self, typ, metric_name, name, labelnames, labelvalues,
                  **kwargs):
         self._name = self.get_name(typ, metric_name, name, labelnames,
@@ -57,8 +60,10 @@ class RedisProvider(Value):
         self._redis_app.incrbyfloat(self._name, amount)
 
     def set(self, value):
-        with self._lock:
+        if self._lock.acquire(blocking=self.BLOCKING,
+                              blocking_timeout=self.BLOCKING_TIMEOUT):
             self._redis_app.set(self._name, value)
+            self._lock.release()
 
     def get(self):
         return float(self._redis_app.get(self._name) or 0)
@@ -82,6 +87,9 @@ def get_redis_provider(redis_app):
 
     class Provider(RedisProvider):
         """Metric storage provider in Redis."""
+
+        BLOCKING = False
+        BLOCKING_TIMEOUT = 0.1
 
         def get_redis_app(self):
             return redis_app
