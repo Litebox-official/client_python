@@ -91,4 +91,3 @@ hh_sum 0.05
 hh_created 123.456
 # EOF
 """, generate_latest(self.registry))
-
