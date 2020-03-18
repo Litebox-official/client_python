@@ -82,14 +82,14 @@ class RedisProvider(Value):
         raise NotImplementedError('get_name() must be implemented by %r' % self)
 
 
-def get_redis_provider(redis_app):
+def get_redis_provider(redis_app, blocking=False, blocking_timeout=0.1):
     """Returns a provider using Redis."""
 
     class Provider(RedisProvider):
         """Metric storage provider in Redis."""
 
-        BLOCKING = False
-        BLOCKING_TIMEOUT = 0.1
+        BLOCKING = blocking
+        BLOCKING_TIMEOUT = blocking_timeout
 
         def get_redis_app(self):
             return redis_app
