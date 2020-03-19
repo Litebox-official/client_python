@@ -4,6 +4,7 @@ import os
 from threading import Lock
 
 from .mmap_dict import mmap_key, MmapedDict
+from .providers import ValueProvider
 
 
 class MutexValue(object):
@@ -11,21 +12,21 @@ class MutexValue(object):
 
     _multiprocess = False
 
-    def __init__(self, typ, metric_name, name, labelnames, labelvalues, **kwargs):
-        self._value = 0.0
-        self._lock = Lock()
+    def __init__(self, typ, metric_name, name, labelnames, labelvalues,
+                 storage_provider=None, **kwargs):
+        _storage_provider = storage_provider or ValueProvider
+        self._storage_provider = _storage_provider(typ, metric_name, name,
+                                                   labelnames, labelvalues,
+                                                   **kwargs)
 
     def inc(self, amount):
-        with self._lock:
-            self._value += amount
+        self._storage_provider.inc(amount)
 
     def set(self, value):
-        with self._lock:
-            self._value = value
+        self._storage_provider.set(value)
 
     def get(self):
-        with self._lock:
-            return self._value
+        return self._storage_provider.get()
 
 
 def MultiProcessValue(process_identifier=os.getpid):

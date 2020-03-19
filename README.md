@@ -1,6 +1,7 @@
 # Prometheus Python Client
 
-The official Python 2 and 3 client for [Prometheus](http://prometheus.io).
+Fork of an official client who can use Redis as a repository. It may be useful if you need to collect metrics 
+from different application instances that do not have a common parent process.
 
 ## Three Step Demo
 
@@ -564,3 +565,29 @@ for family in text_string_to_metric_families(u"my_gauge 1.0\n"):
   for sample in family.samples:
     print("Name: {0} Labels: {1} Value: {2}".format(*sample))
 ```
+
+
+## Redis
+
+In order to organize the storage of metrics in Redis, and not in memory or in a file, 
+you need to indicate to your metrics which storage provider to use for this.
+
+```python
+from prometheus_client import providers, Counter
+from redis import Redis
+redis = Redis(host='localhost', port=6379, db=0)
+
+RedisProvider = providers.get_redis_provider(redis)
+
+Counter(
+    'test_metric', 'Test metric', storage_provider=RedisProvider
+)
+```
+
+In order to collect a common metric from different instances, threads, processes, 
+or generally different applications, you need to inherit from the 
+`providers.RedisProvider` class and override the `get_redis_app` and `get_name` methods.
+
+`get_redis_app` is responsible for returning a configured Redis application
+
+`get_name` is responsible for returning a unique key in which metric data will be stored.
